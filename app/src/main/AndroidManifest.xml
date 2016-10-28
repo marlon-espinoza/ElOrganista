@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.skysiteofi2.elorganista">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Nivel"
+            android:label="@string/title_activity_nivel"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name=".MainActivity"
+                android:value=".MainActivity" />
+        </activity>
+        <activity android:name=".Videos"
+            android:parentActivityName=".Nivel">
+            <meta-data
+                android:name=".Nivel"
+                android:value=".Nivel" />
+        </activity>
+        <activity android:name=".ReproductorVideo"
+            android:parentActivityName=".Nivel"
+            android:configChanges="orientation|screenSize">
+            <meta-data
+                android:name=".Videos"
+                android:value=".Videos" />
+        </activity>
+    </application>
+
+</manifest>
