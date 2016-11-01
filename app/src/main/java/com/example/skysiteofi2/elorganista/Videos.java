@@ -50,7 +50,6 @@ public class Videos extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        System.out.println(videos);
         String titulo = getIntent().getStringExtra("subnivel");
         setTitle(titulo);
     }

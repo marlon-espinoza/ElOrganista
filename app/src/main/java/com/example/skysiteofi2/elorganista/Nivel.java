@@ -65,7 +65,7 @@ public class Nivel extends AppCompatActivity {
             {
                 String str = ((TextView) arg1).getText().toString();
                 Toast.makeText(context,str, Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(context,Videos.class);
+                Intent intent = new Intent(context,Videos2.class);
                 intent.putExtra("subnivel", str);
                 startActivity(intent);
 
