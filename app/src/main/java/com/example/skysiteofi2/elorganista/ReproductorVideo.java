@@ -22,7 +22,7 @@ public class ReproductorVideo extends AppCompatActivity {
         setContentView(R.layout.activity_reproductor_video);
         reproductor =(VideoView)findViewById(R.id.video);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        getSupportActionBar().hide();
         final ProgressBar progressBar = (ProgressBar)findViewById(R.id.progressBar1);
         TextView titulo = (TextView) findViewById(R.id.titulo_video_visor);
         TextView descripcion = (TextView) findViewById(R.id.descripcion_video_visor);

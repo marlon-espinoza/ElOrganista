@@ -9,7 +9,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:screenOrientation="landscape"  >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,7 +21,8 @@
             android:name=".Nivel"
             android:label="@string/title_activity_nivel"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme"
+            android:screenOrientation="landscape"  >
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
@@ -28,14 +30,16 @@
                 android:value=".MainActivity" />
         </activity>
         <activity android:name=".Videos"
-            android:parentActivityName=".Nivel">
+            android:parentActivityName=".Nivel"
+            android:screenOrientation="landscape"  >
             <meta-data
                 android:name=".Nivel"
                 android:value=".Nivel" />
         </activity>
         <activity android:name=".ReproductorVideo"
             android:parentActivityName=".Nivel"
-            android:configChanges="orientation|screenSize">
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="landscape"  >
             <meta-data
                 android:name=".Videos"
                 android:value=".Videos" />

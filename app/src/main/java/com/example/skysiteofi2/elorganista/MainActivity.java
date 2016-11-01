@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mTitle = mDrawerTitle = getTitle();
-        System.out.println(mTitle);
         // load slide menu items
         navMenuTitles = getResources().getStringArray(R.array.nav_drawer_items);
 
@@ -64,9 +63,9 @@ public class MainActivity extends AppCompatActivity {
         navMenuIcons.getResourceId(navMenuIcons.getIndex(1),-1);
         navDrawerItems.add(new NavDrawerItem(navMenuTitles[0], R.drawable.ic_people));
         // Seccion2
-        navDrawerItems.add(new NavDrawerItem(navMenuTitles[1], R.drawable.ic_whats_hot));
-        // Seccion3
-        navDrawerItems.add(new NavDrawerItem(navMenuTitles[2], R.drawable.ic_communities));
+//        navDrawerItems.add(new NavDrawerItem(navMenuTitles[1], R.drawable.ic_whats_hot));
+//        // Seccion3
+//        navDrawerItems.add(new NavDrawerItem(navMenuTitles[2], R.drawable.ic_communities));
         // Seccion4
         navDrawerItems.add(new NavDrawerItem(navMenuTitles[3], R.drawable.ic_photos));
 
@@ -83,6 +82,12 @@ public class MainActivity extends AppCompatActivity {
         // enabling action bar app icon and behaving it as toggle button
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+
+        //Instancia del home
+        Fragment fragment = new Seccion().newInstance("inicio");
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.frame_container, fragment).commit();
 
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.string.app_name, // nav drawer open - description for accessibility
@@ -169,16 +174,16 @@ public class MainActivity extends AppCompatActivity {
         switch (position) {
             case 0:
 
-                fragment = new Seccion().newInstance("piano");
+                fragment = new Seccion().newInstance("organo");
                 break;
+//            case 1:
+//                fragment = new Seccion().newInstance("guitarra");
+//                break;
+//            case 2:
+//                fragment = new Seccion().newInstance("flauta");
+//                break;
             case 1:
-                fragment = new Seccion().newInstance("guitarra");
-                break;
-            case 2:
-                fragment = new Seccion().newInstance("flauta");
-                break;
-            case 3:
-                fragment = new Seccion();
+                fragment = new Seccion().newInstance("inicio");
                 break;
 
             default:
@@ -197,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
             mDrawerLayout.closeDrawer(mDrawerList);
         } else {
             // error in creating fragment
-            Log.e("Ramiro", "MainActivity - Error cuando se creo el fragment");
+            Log.e("", "MainActivity - Error cuando se creo el fragment");
         }
     }
 

@@ -42,10 +42,10 @@ public class Seccion extends Fragment {
     public Seccion() {
         super();
     }
-    public final Seccion newInstance(String curso)  {
+    public final Seccion newInstance(String seccion)  {
         Seccion f = new Seccion();
         Bundle bdl = new Bundle(1);
-        bdl.putString("curso", curso);
+        bdl.putString("seccion", seccion);
         f.setArguments(bdl);
         return f;
     }
@@ -80,7 +80,7 @@ public class Seccion extends Fragment {
 
 
     private void getNiveles() throws ExecutionException, InterruptedException, JSONException{
-        new WebServices("token=familia88appOrganista"){
+        new WebServices(""){
             @Override
             protected void onPostExecute(String result) {
                 super.onPostExecute(result);
@@ -94,22 +94,34 @@ public class Seccion extends Fragment {
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_seccion, container, false);
-        context = getActivity();
 
-        String curso = getArguments().getString("curso");
-        Toast.makeText(context,curso, Toast.LENGTH_LONG).show();
-        lView = (ListView) rootView.findViewById(R.id.niveles);
+        View rootView;
 
-        try {
-            getNiveles();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
+        String curso = getArguments().getString("seccion");
+        if(curso.equals("inicio")){
+
+            rootView = inflater.inflate(R.layout.fragment_home, container, false);
+
+        }else {
+
+            rootView = inflater.inflate(R.layout.fragment_seccion, container, false);
+            lView = (ListView) rootView.findViewById(R.id.niveles);
+
+            try {
+                getNiveles();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
+        context = getActivity();
+        Toast.makeText(context,curso, Toast.LENGTH_LONG).show();
+
+
+
 
         return rootView;
     }
