@@ -1,6 +1,7 @@
 package com.example.skysiteofi2.elorganista;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -17,35 +18,34 @@ import java.net.URL;
  * Created by skysiteofi2 on 28/10/16.
  */
 
-public class WebServices extends AsyncTask<String, Integer, String>
+public class WebServices extends AsyncTask<String, Void, String>
 {
-    String parametro;
+    private String parametro;
     public WebServices(String parametro) {
         this.parametro = parametro;
     }
+
 
     @Override
     protected String doInBackground(String... params) {
 
             String res=PostData(params);
-
             return res;
-            }
+    }
 
     @Override
     protected void onPostExecute(String result) {
-//        progressBar.setVisibility(View.GONE);
-        //progess_msz.setVisibility(View.GONE);
-//        Toast.makeText(getApplicationContext(), result, 3000).show();
+
     }
     public String PostData(String[] value) {
 
         try {
-            URL url = new URL("http://skysite.com.ec/clientes/wssim.php");
+            Log.e("url",value[0]);
+            URL url = new URL("https://elorganista.herokuapp.com/"+value[0]);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             //InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-            String urlParameters = "parametro="+parametro;
+            String urlParameters = parametro;
             urlConnection.setRequestMethod("POST");
 
             urlConnection.setDoOutput(true);
