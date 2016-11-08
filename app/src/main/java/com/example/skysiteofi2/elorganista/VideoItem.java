@@ -11,7 +11,7 @@ public class VideoItem {
     public String titulo;
     public String descripcion;
     public String url;
-
+    public String imagen;
 
 
     public Bitmap vista;

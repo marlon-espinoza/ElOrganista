@@ -5,6 +5,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.MediaController;
@@ -23,18 +24,30 @@ public class ReproductorVideo extends AppCompatActivity {
         reproductor =(VideoView)findViewById(R.id.video);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().hide();
+
+
         final ProgressBar progressBar = (ProgressBar)findViewById(R.id.progressBar1);
+
+
         TextView titulo = (TextView) findViewById(R.id.titulo_video_visor);
         TextView descripcion = (TextView) findViewById(R.id.descripcion_video_visor);
-        titulo.setText(getIntent().getStringExtra("titulo"));
-        descripcion.setText(getIntent().getStringExtra("descripcion"));
-        //Para reproducir archivos en streaming, como vídeos de Youtube:
-        reproductor.setVideoURI(Uri.parse("http://skysite.com.ec/cubo.mp4"));
+
+        String tituloVideo = getIntent().getStringExtra("titulo");
+        String descripcionVideo = getIntent().getStringExtra("descripcion");
+        String urlVideo = getIntent().getStringExtra("url");
+        Log.e("url video",urlVideo);
+        Log.e("titulo",tituloVideo);
+        Log.e("descripcion",descripcionVideo);
+
+        titulo.setText(tituloVideo);
+        descripcion.setText(descripcionVideo);
+
+
+        Uri videoUri = Uri.parse(urlVideo);
+        reproductor.setVideoURI(videoUri);
         //Para reproducir archivos almacenados en la memoria SDCard:
 //        reproductor.setVideoPath("/mnt/sdcard/videoEjemplo.mp4");
         reproductor.setMediaController(new MediaController(this));
-        reproductor.start();
-        reproductor.requestFocus();
         progressBar.setVisibility(View.VISIBLE);
         reproductor.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
@@ -52,6 +65,8 @@ public class ReproductorVideo extends AppCompatActivity {
                 });
             }
         });
+        reproductor.start();
+        reproductor.requestFocus();
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -70,14 +85,11 @@ public class ReproductorVideo extends AppCompatActivity {
 
         // Checks the orientation of the screen
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
             System.out.println("landscape");
             getSupportActionBar().hide();
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
-            Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
             System.out.println("postrait");
             getSupportActionBar().show();
-
         }
     }
     @Override

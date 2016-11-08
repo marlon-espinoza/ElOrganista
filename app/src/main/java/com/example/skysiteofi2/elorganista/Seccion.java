@@ -37,11 +37,15 @@ import java.util.concurrent.ExecutionException;
 public class Seccion extends Fragment {
 
     String[] niveles;
+
     private ListView lView;
     private Context context;
+    private ArrayList<String> arregloIds = new ArrayList<String>();
+
     public Seccion() {
         super();
     }
+
     public final Seccion newInstance(String seccion)  {
         Seccion f = new Seccion();
         Bundle bdl = new Bundle(1);
@@ -58,18 +62,31 @@ public class Seccion extends Fragment {
             for (int i = 0; i < jObject.length(); i++) {
                 JSONObject temp = (JSONObject)jObject.get(i);
                 String nivel =  temp.getString("nivel");
+                String idnivel =  temp.getString("id");
+                arregloIds.add(idnivel);
                 arregloString.add(nivel);
             }
             ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1, arregloString);
             lView.setAdapter(adapter);
             lView.setOnItemClickListener(new AdapterView.OnItemClickListener()
             {
-                public void onItemClick(AdapterView<?> arg0, View arg1,int arg2, long arg3)
+                public void onItemClick(AdapterView<?> arg0, View arg1,int posicion, long arg3)
                 {
+//                    String str = ((TextView) arg1).getText().toString();
+//                    Intent intent = new Intent(context,Nivel.class);
+//                    intent.putExtra("nivel", str);
+//                    intent.putExtra("idnivel",arregloIds.get(posicion));
+//                    startActivity(intent);
                     String str = ((TextView) arg1).getText().toString();
-                    Intent intent = new Intent(context,Nivel.class);
-                    intent.putExtra("nivel", str);
-                    startActivity(intent);
+                    Nivel nextFrag= new Nivel().newInstance(str);
+                    Bundle bdl = new Bundle();
+                    bdl.putString("nivel", str);
+                    bdl.putString("idnivel", arregloIds.get(posicion));
+                    nextFrag.setArguments(bdl);
+                    getFragmentManager().beginTransaction()
+                            .replace(R.id.frame_container, nextFrag,"Nivel")
+                            .addToBackStack(null)
+                            .commit();
                 }
             });
         }catch (JSONException e) {
@@ -119,9 +136,6 @@ public class Seccion extends Fragment {
         }
         context = getActivity();
         Toast.makeText(context,curso, Toast.LENGTH_LONG).show();
-
-
-
 
         return rootView;
     }

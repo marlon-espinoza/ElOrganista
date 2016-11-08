@@ -1,5 +1,6 @@
 package com.example.skysiteofi2.elorganista;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -9,6 +10,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,71 +20,102 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Nivel extends AppCompatActivity {
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+
+public class Nivel extends Fragment {
+    private Context context;
+    private ListView lView;
+    private ArrayList<String> arregloIds = new ArrayList<String>();
+
+    public Nivel() {
+        super();
+    }
+    public final Nivel newInstance(String subnivel)  {
+        Nivel f = new Nivel();
+        Bundle bdl = new Bundle(1);
+        bdl.putString("subnivel", subnivel);
+        f.setArguments(bdl);
+        return f;
+    }
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_nivel);
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+
+        View rootView;
+        rootView = inflater.inflate(R.layout.fragment_subnivel, container, false);
+        lView = (ListView) rootView.findViewById(R.id.subniveles);
 
 
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
-        String nivel = getIntent().getStringExtra("nivel");
-        setTitle(nivel);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        String idnivel=getArguments().getString("idnivel");
+        String labelnivel=getArguments().getString("nivel");
 
-        final Context context = getApplication();
-        //generate list
-        String[] subniveles = {"nivel 1","nivel 2"};
-
-        ListView lView = (ListView) findViewById(R.id.subniveles);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String >(getApplication(),android.R.layout.simple_list_item_1, subniveles){
-
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                View view =super.getView(position, convertView, parent);
-
-                TextView textView=(TextView) view.findViewById(android.R.id.text1);
-
-            /*YOUR CHOICE OF COLOR*/
-                textView.setTextColor(Color.BLACK);
-
-                return view;
-            }
-        };;
-
-        lView.setAdapter(adapter);
-        lView.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
-            public void onItemClick(AdapterView<?> arg0, View arg1,int arg2, long arg3)
-            {
-                String str = ((TextView) arg1).getText().toString();
-                Toast.makeText(context,str, Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(context,Videos2.class);
-                intent.putExtra("subnivel", str);
-                startActivity(intent);
-
-            }
-        });
+        try {
+            getSubNiveles(idnivel);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        context = getActivity();
+        return rootView;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                // app icon in action bar clicked; go home
-                this.finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+
+
+    public void completeTask(String result) {
+        try {
+            JSONArray jObject = new JSONArray(result);
+            ArrayList<String> arregloString = new ArrayList<String>();
+            for (int i = 0; i < jObject.length(); i++) {
+                JSONObject temp = (JSONObject)jObject.get(i);
+                String subnivel =  temp.getString("subnivel");
+                String idnivel =  temp.getString("id");
+                arregloIds.add(idnivel);
+                arregloString.add(subnivel);
+            }
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1, arregloString);
+            lView.setAdapter(adapter);
+            lView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+            {
+                public void onItemClick(AdapterView<?> arg0, View arg1,int posicion, long arg3)
+                {
+                    String str = ((TextView) arg1).getText().toString();
+                    Videos2 nextFrag= new Videos2();
+                    Bundle bdl = new Bundle();
+                    bdl.putString("subnivel", str);
+                    bdl.putString("idsubnivel", arregloIds.get(posicion));
+                    nextFrag.setArguments(bdl);
+                    getFragmentManager().beginTransaction()
+                            .replace(R.id.frame_container, nextFrag,"Subnivel")
+                            .addToBackStack(null)
+                            .commit();
+                }
+            });
+        }catch (JSONException e) {
+            e.printStackTrace();
         }
+    }
+
+
+
+    private void getSubNiveles(String idnivel) throws ExecutionException, InterruptedException, JSONException{
+        new WebServices("nivel_id="+idnivel){
+            @Override
+            protected void onPostExecute(String result) {
+                super.onPostExecute(result);
+                completeTask(result);
+            }
+        }.execute("subnivelesapi/");
+
+
     }
 
 
