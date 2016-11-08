@@ -2,21 +2,27 @@ package com.example.skysiteofi2.elorganista;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +37,7 @@ public class Nivel extends Fragment {
     private Context context;
     private ListView lView;
     private ArrayList<String> arregloIds = new ArrayList<String>();
+    private ProgressBar progressBar=null;
 
     public Nivel() {
         super();
@@ -48,10 +55,11 @@ public class Nivel extends Fragment {
         // Inflate the layout for this fragment
 
         View rootView;
+        context = getActivity();
         rootView = inflater.inflate(R.layout.fragment_subnivel, container, false);
         lView = (ListView) rootView.findViewById(R.id.subniveles);
-
-
+        progressBar = (ProgressBar)rootView.findViewById(R.id.progressBar3);
+        setHasOptionsMenu(true);
         String idnivel=getArguments().getString("idnivel");
         String labelnivel=getArguments().getString("nivel");
 
@@ -104,14 +112,54 @@ public class Nivel extends Fragment {
         }
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.my, menu);
+        super.onCreateOptionsMenu(menu,inflater);
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar actions click
+        switch (item.getItemId()) {
+            case R.id.atras:
+                
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     private void getSubNiveles(String idnivel) throws ExecutionException, InterruptedException, JSONException{
         new WebServices("nivel_id="+idnivel){
             @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                progressBar.setVisibility(View.VISIBLE);
+            }
+            @Override
             protected void onPostExecute(String result) {
                 super.onPostExecute(result);
+                progressBar.setVisibility(View.GONE);
+                if (!result.equals("Error"))
                 completeTask(result);
+                else{
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+                    builder1.setMessage("Error de conección");
+                    builder1.setCancelable(true);
+
+                    builder1.setPositiveButton(
+                            "Ok",
+                            new DialogInterface.OnClickListener(){
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+
+
+                    AlertDialog alert11 = builder1.create();
+                    alert11.show();
+                }
             }
         }.execute("subnivelesapi/");
 

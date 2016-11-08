@@ -1,8 +1,10 @@
 package com.example.skysiteofi2.elorganista;
 
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -45,6 +47,7 @@ public class ReproductorVideo extends AppCompatActivity {
 
         Uri videoUri = Uri.parse(urlVideo);
         reproductor.setVideoURI(videoUri);
+        reproductor.setOnErrorListener(mOnErrorListener);
         //Para reproducir archivos almacenados en la memoria SDCard:
 //        reproductor.setVideoPath("/mnt/sdcard/videoEjemplo.mp4");
         reproductor.setMediaController(new MediaController(this));
@@ -103,4 +106,27 @@ public class ReproductorVideo extends AppCompatActivity {
         super.onRestoreInstanceState(savedInstanceState);
         savedInstanceState.getBundle("newBundy");
     }
+    private MediaPlayer.OnErrorListener mOnErrorListener = new MediaPlayer.OnErrorListener() {
+
+        @Override
+        public boolean onError(MediaPlayer mp, int what, int extra) {
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(ReproductorVideo.this);
+            builder1.setMessage("Video no puede ser mostrado");
+            builder1.setCancelable(false);
+            builder1.setTitle("Error");
+            builder1.setPositiveButton(
+                    "Ok",
+                    new DialogInterface.OnClickListener(){
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                            finish();
+                        }
+                    });
+
+
+            AlertDialog alert11 = builder1.create();
+            alert11.show();
+            return true;
+        }
+    };
 }

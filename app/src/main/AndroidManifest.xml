@@ -19,36 +19,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".Nivel"
-            android:label="@string/title_activity_nivel"
-            android:parentActivityName=".MainActivity"
-            android:screenOrientation="landscape"
-            android:theme="@style/AppTheme">
 
-            <!-- Parent activity meta-data to support 4.0 and lower -->
-            <meta-data
-                android:name=".MainActivity"
-                android:value=".MainActivity" />
-        </activity>
-        <activity
-            android:name=".Videos"
-            android:parentActivityName=".Nivel"
-            android:screenOrientation="landscape">
-            <meta-data
-                android:name=".Nivel"
-                android:value=".Nivel" />
-        </activity>
+
+
+
         <activity
             android:name=".ReproductorVideo"
-            android:configChanges="orientation|screenSize"
-            android:parentActivityName=".Nivel"
+            android:theme="@style/Theme.AppCompat"
             android:screenOrientation="landscape">
-            <meta-data
-                android:name=".Videos"
-                android:value=".Videos" />
         </activity>
-        <activity android:name=".Videos2"></activity>
     </application>
 
 </manifest>

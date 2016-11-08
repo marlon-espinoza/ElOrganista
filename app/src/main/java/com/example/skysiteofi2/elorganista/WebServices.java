@@ -47,30 +47,37 @@ public class WebServices extends AsyncTask<String, Void, String>
             //InputStream in = new BufferedInputStream(urlConnection.getInputStream());
             String urlParameters ="token=familia88appOrganista&"+ parametro;
             urlConnection.setRequestMethod("POST");
-
             urlConnection.setDoOutput(true);
             DataOutputStream dStream = new DataOutputStream(urlConnection.getOutputStream());
-            dStream.writeBytes(urlParameters);
-            dStream.flush();
-            dStream.close();
+//            System.out.println("RESPONSE CODE!!!!!!!!!!!!!!");
+//            System.out.println(urlConnection.getResponseCode());
+
+
+                dStream.writeBytes(urlParameters);
+                dStream.flush();
+                dStream.close();
 //            int responseCode = urlConnection.getResponseCode();
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-            String line = "";
-            StringBuilder responseOutput = new StringBuilder();
-            while((line = br.readLine()) != null ) {
-                responseOutput.append(line);
-            }
-            br.close();
+                BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                String line = "";
+                StringBuilder responseOutput = new StringBuilder();
+                while((line = br.readLine()) != null ) {
+                    responseOutput.append(line);
+                }
+                br.close();
 
-            return responseOutput.toString();
+                return responseOutput.toString();
+
+
         }catch (MalformedURLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+            return "Error";
         }catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+            return "Error";
         }
-        return null;
+//        return "Error";
     }
 }

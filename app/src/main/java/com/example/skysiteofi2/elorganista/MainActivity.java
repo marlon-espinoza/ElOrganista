@@ -83,6 +83,8 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
+
+
         //Instancia del home
         Fragment fragment = new Seccion().newInstance("inicio");
         FragmentManager fragmentManager = getFragmentManager();
@@ -133,11 +135,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.my, menu);
-        return true;
-    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -145,25 +143,19 @@ public class MainActivity extends AppCompatActivity {
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-        // Handle action bar actions click
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        return true;
     }
 
     /* *
      * Called when invalidateOptionsMenu() is triggered
      */
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        // if nav drawer is opened, hide the action items
-        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-        menu.findItem(R.id.action_settings).setVisible(!drawerOpen);
-        return super.onPrepareOptionsMenu(menu);
-    }
+//    @Override
+//    public boolean onPrepareOptionsMenu(Menu menu) {
+//        // if nav drawer is opened, hide the action items
+//        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+//        menu.findItem(R.id.action_settings).setVisible(!drawerOpen);
+//        return super.onPrepareOptionsMenu(menu);
+//    }
 
     /**
      * Diplaying fragment view for selected nav drawer list item
