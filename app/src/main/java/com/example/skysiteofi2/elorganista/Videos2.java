@@ -53,6 +53,7 @@ public class Videos2 extends Fragment {
         // Inflate the layout for this fragment
 
         final View rootView;
+        setHasOptionsMenu(true);
         context = getActivity();
         rootView = inflater.inflate(R.layout.activity_videos2, container, false);
         context = getActivity();

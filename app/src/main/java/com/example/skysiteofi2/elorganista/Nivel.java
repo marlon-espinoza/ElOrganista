@@ -13,6 +13,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -55,11 +56,11 @@ public class Nivel extends Fragment {
         // Inflate the layout for this fragment
 
         View rootView;
+        setHasOptionsMenu(true);
         context = getActivity();
         rootView = inflater.inflate(R.layout.fragment_subnivel, container, false);
         lView = (ListView) rootView.findViewById(R.id.subniveles);
         progressBar = (ProgressBar)rootView.findViewById(R.id.progressBar3);
-        setHasOptionsMenu(true);
         String idnivel=getArguments().getString("idnivel");
         String labelnivel=getArguments().getString("nivel");
 
@@ -75,8 +76,6 @@ public class Nivel extends Fragment {
         context = getActivity();
         return rootView;
     }
-
-
 
     public void completeTask(String result) {
         try {
@@ -123,7 +122,7 @@ public class Nivel extends Fragment {
         // Handle action bar actions click
         switch (item.getItemId()) {
             case R.id.atras:
-                
+                getFragmentManager().popBackStack();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
