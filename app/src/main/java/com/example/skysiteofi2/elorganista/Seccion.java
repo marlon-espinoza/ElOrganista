@@ -1,10 +1,12 @@
 package com.example.skysiteofi2.elorganista;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,7 +44,8 @@ public class Seccion extends Fragment {
     private ListView lView;
     private Context context;
     private ArrayList<String> arregloIds = new ArrayList<String>();
-
+//    private ProgressBar progressBar=null;
+    private AlertDialog dialogCargar=null;
     public Seccion() {
         super();
     }
@@ -97,11 +101,46 @@ public class Seccion extends Fragment {
 
 
     private void getNiveles() throws ExecutionException, InterruptedException, JSONException{
+
+
         new WebServices(""){
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                // Get the layout inflater
+                LayoutInflater inflater2 = getActivity().getLayoutInflater();
+                builder.setView(inflater2.inflate(R.layout.dialog_cargando, null));
+
+                builder.setTitle("Cargando...");
+                builder.setCancelable(false);
+                dialogCargar = builder.create();
+                dialogCargar.show();
+            }
+
             @Override
             protected void onPostExecute(String result) {
                 super.onPostExecute(result);
-                completeTask(result);
+                dialogCargar.dismiss();
+                if (!result.equals("Error"))
+                    completeTask(result);
+                else{
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+                    builder1.setMessage("Error de conección");
+                    builder1.setCancelable(true);
+
+                    builder1.setPositiveButton(
+                            "Ok",
+                            new DialogInterface.OnClickListener(){
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+
+
+                    AlertDialog alert11 = builder1.create();
+                    alert11.show();
+                }
             }
         }.execute("nivelesapi/");
         //Log.e("error",result+" prueba");
@@ -113,7 +152,8 @@ public class Seccion extends Fragment {
         // Inflate the layout for this fragment
 
         View rootView;
-
+        context = getActivity();
+        
         String curso = getArguments().getString("seccion");
         if(curso.equals("inicio")){
 
@@ -123,6 +163,8 @@ public class Seccion extends Fragment {
 
             rootView = inflater.inflate(R.layout.fragment_seccion, container, false);
             lView = (ListView) rootView.findViewById(R.id.niveles);
+//            progressBar = (ProgressBar)rootView.findViewById(R.id.progressBar2);
+
 
             try {
                 getNiveles();
@@ -134,8 +176,8 @@ public class Seccion extends Fragment {
                 e.printStackTrace();
             }
         }
-        context = getActivity();
-        Toast.makeText(context,curso, Toast.LENGTH_LONG).show();
+//        context = getActivity();
+//        Toast.makeText(context,curso, Toast.LENGTH_LONG).show();
 
         return rootView;
     }
