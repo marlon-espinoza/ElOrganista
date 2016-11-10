@@ -2,6 +2,9 @@ package com.example.skysiteofi2.elorganista;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +12,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -48,13 +52,30 @@ public class VideosListAdapter extends BaseAdapter {
             view = mInflater.inflate(R.layout.video_list_item, null);
         }
         ImageView imgIcon = (ImageView) view.findViewById(R.id.zoom_video);
+        ImageView imgAccion = (ImageView) view.findViewById(R.id.ic_accion);
         TextView txtTitle = (TextView) view.findViewById(R.id.titulo_video);
         TextView txtCount = (TextView) view.findViewById(R.id.descripcion_video);
 
         imgIcon.setImageBitmap(videos.get(position).getVista());
         txtTitle.setText(videos.get(position).getTitulo());
         txtCount.setText(videos.get(position).getDescripcion());
+        if(buscarVideoAlmacenado(videos.get(position).getId())){
+            videos.get(position).setGuardado(true);
+            imgAccion.setImageResource(R.drawable.ic_play);
+        }
+
+        else{
+            videos.get(position).setGuardado(false);
+            imgAccion.setImageResource(R.drawable.ic_down);
+        }
+
 
         return view;
+    }
+    private boolean buscarVideoAlmacenado(String id){
+        ContextWrapper cw = new ContextWrapper(this.context);
+        File file = cw.getDir(id+".mp4", Context.MODE_PRIVATE);
+
+        return file.exists();
     }
 }

@@ -2,6 +2,7 @@ package com.example.skysiteofi2.elorganista;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,6 +10,10 @@ import android.graphics.BitmapFactory;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -98,7 +103,7 @@ public class Videos2 extends Fragment {
                 for (int z=0;z<videos.length();z++){
                     JSONObject tempVideo = (JSONObject)videos.get(z);
                     Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_whats_hot);
-                    videoItems.add(new VideoItem(tempVideo.getString("titulo"),tempVideo.getString("descripcion"),tempVideo.getString("videoUrl"),bitmap));
+                    videoItems.add(new VideoItem(tempVideo.getString("id"),tempVideo.getString("titulo"),tempVideo.getString("descripcion"),tempVideo.getString("videoUrl"),bitmap));
                 }
                 VideosListAdapter videosAdapterTemp;
                 videosAdapterTemp = new VideosListAdapter(context,videoItems);
@@ -145,14 +150,44 @@ public class Videos2 extends Fragment {
                     // TODO Auto-generated method stub
                     //listDataHeader.get(groupPosition)
 
-                    VideoItem videoClick = (VideoItem) listDataChild.get(listDataHeader.get(groupPosition)).getItem(childPosition);
+//                    try
+//                    {
+//                        OutputStreamWriter fout=
+//                                new OutputStreamWriter(
+//                                        openFileOutput("prueba_int.txt", Context.MODE_PRIVATE));
+//
+//                        fout.write("Texto de prueba.");
+//                        fout.close();
+//                    }
+//                    catch (Exception ex)
+//                    {
+//                        Log.e("Ficheros", "Error al escribir fichero a memoria interna");
+//                    }
 
-                    Intent intent = new Intent(context,ReproductorVideo.class);
-                    intent.putExtra("titulo",videoClick.getTitulo());
-                    intent.putExtra("descripcion",videoClick.getDescripcion());
-                    intent.putExtra("url",videoClick.getUrl());
-                    //intent.putExtra("imagen",videoClick.getVista());
-                    startActivity(intent);
+                    VideoItem videoClick = (VideoItem) listDataChild.get(listDataHeader.get(groupPosition)).getItem(childPosition);
+//
+//                    Intent intent = new Intent(context,ReproductorVideo.class);
+//                    intent.putExtra("titulo",videoClick.getTitulo());
+//                    intent.putExtra("descripcion",videoClick.getDescripcion());
+//                    intent.putExtra("url",videoClick.getUrl());
+//                    //intent.putExtra("imagen",videoClick.getVista());
+//                    startActivity(intent);
+                    if (videoClick.getGuardado())
+                        Toast.makeText(context,videoClick.getId(),Toast.LENGTH_SHORT).show();
+                    else{
+
+                        String string = "Hello world!";
+                        FileOutputStream outputStream;
+
+                        try {
+//                            outputStream = (id, Context.MODE_PRIVATE);
+//                            outputStream.write(string.getBytes());
+//                            outputStream.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
 
                     return false;
                 }
