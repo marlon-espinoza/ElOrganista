@@ -7,10 +7,13 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,6 +53,7 @@ public class Videos2 extends Fragment {
     HashMap<String, VideosListAdapter> listDataChild;
     private ProgressBar progressBar=null;
     private Context context;
+    private static ArrayList<GuardarVideo> descargas=new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
@@ -140,6 +144,7 @@ public class Videos2 extends Fragment {
             // Listview on child click listener
             expListView.setOnChildClickListener(new OnChildClickListener() {
 
+
                 @Override
                 public boolean onChildClick(ExpandableListView parent, View v,
                                             int groupPosition, int childPosition, long id) {
@@ -150,7 +155,6 @@ public class Videos2 extends Fragment {
                     ImageView imgAccion = (ImageView) listDataChild.get(listDataHeader.get(groupPosition)).getView(childPosition,v,parent).findViewById(R.id.ic_accion);
                     ProgressBar progressBar = (ProgressBar) listDataChild.get(listDataHeader.get(groupPosition)).getView(childPosition,v,parent).findViewById(R.id.progress_accion);
                     View child = listDataChild.get(listDataHeader.get(groupPosition)).getView(childPosition,v,parent);
-//
 //                    Intent intent = new Intent(context,ReproductorVideo.class);
 //                    intent.putExtra("titulo",videoClick.getTitulo());
 //                    intent.putExtra("descripcion",videoClick.getDescripcion());
@@ -158,7 +162,6 @@ public class Videos2 extends Fragment {
 //                    //intent.putExtra("imagen",videoClick.getVista());
 //                    startActivity(intent);
                     if (videoClick.getGuardado()){
-                        Toast.makeText(context,videoClick.getId(),Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(context,ReproductorVideo.class);
                         intent.putExtra("titulo",videoClick.getTitulo());
                         intent.putExtra("descripcion",videoClick.getDescripcion());
@@ -169,14 +172,20 @@ public class Videos2 extends Fragment {
                         startActivity(intent);
                     }
                     else{
+                        if (!videoClick.getGuardando()){
+                            videoClick.setGuardando(true);
+                            GuardarVideo evento=new GuardarVideo(videoClick,imgAccion,progressBar,child);
+                            String path=context.getFilesDir().getAbsolutePath()+"/"+videoClick.getId()+".mp4";
 
-                        String string = "Hello world!";
-                        FileOutputStream outputStream;
-                        String path=context.getFilesDir().getAbsolutePath()+"/"+videoClick.getId()+".mp4";
 
-
-
-                        new GuardarVideo(imgAccion,progressBar,child).execute(videoClick.getUrl(),path);
+                            if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
+//                            new GuardarVideo().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,videoClick.getUrl(),path);
+                                evento.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,videoClick.getUrl(),path);
+                            else
+//                            new GuardarVideo().execute(videoClick.getUrl(),path);
+                                evento.execute(videoClick.getUrl(),path);
+                            descargas.add(evento);
+                        }
 
                     }
 
@@ -242,75 +251,108 @@ public class Videos2 extends Fragment {
 
 
     private class GuardarVideo extends AsyncTask<String, Integer, Long> {
-        final int TIMEOUT_CONNECTION = 5000;//5sec
+        final int TIMEOUT_CONNECTION = 15000;//15sec
         final int TIMEOUT_SOCKET = 30000;//30sec
         ImageView img = null;
         ProgressBar pg = null;
         View child = null;
+        VideoItem videoClick=null;
+        boolean flagFirstConnect = false;
+
+        public void ulrConnect(URL url, String path) throws IOException{
+            //Open a connection to that URL.
+            URLConnection ucon = url.openConnection();
+            ucon.setRequestProperty("connection", "close");
+            ucon.setReadTimeout(TIMEOUT_CONNECTION);
+            ucon.setConnectTimeout(TIMEOUT_SOCKET);
 
 
-        public GuardarVideo(ImageView img,ProgressBar pg,View child) {
+            //Define InputStreams to read from the URLConnection.
+            // uses 3KB download buffer
+            InputStream is = ucon.getInputStream();
+            BufferedInputStream inStream = new BufferedInputStream(is, 1024 * 5);
+            FileOutputStream outStream = new FileOutputStream(path);
+            byte[] buff = new byte[5 * 1024];
+
+            //Read bytes (and store them) until there is nothing more to read(-1)
+            int len;
+            long total = ucon.getContentLength();
+            long progreso=0;
+            long progreso2=0;
+            while ((len = inStream.read(buff)) != -1)
+            {
+                if (isCancelled()){
+                    //clean up
+                    outStream.flush();
+                    outStream.close();
+                    inStream.close();
+                    onCancelled(path);
+
+                    break;
+                }
+
+                progreso2+=len > 0 ? len : -len;
+                outStream.write(buff,0,len);
+//                int d = (int)outStream.getChannel().size();
+
+                progreso = (progreso2*100)/total;
+                if(progreso<0)
+                    Log.e("!!!!!!!!!!!!",""+progreso);
+                publishProgress((int)progreso);
+            }
+
+            //clean up
+            outStream.flush();
+            outStream.close();
+            inStream.close();
+            videoClick.setGuardado(true);
+        }
+
+        public GuardarVideo(VideoItem videoClick,ImageView img,ProgressBar pg,View child) {
             this.img = img;
             this.pg = pg;
             this.child = child;
-
+            this.videoClick=videoClick;
+            this.img.setVisibility(View.GONE);
+            this.pg.setVisibility(View.VISIBLE);
+            this.child.setClickable(false);
+            this.pg.setProgress(0);
+            Log.e("Pre","Inicia proceso");
         }
-
+//        protected void onPreExecute(){
+////            img.setVisibility(View.GONE);
+////            pg.setVisibility(View.VISIBLE);
+////            child.setClickable(false);
+////            pg.setProgress(0);
+//            Log.e("Pre","Inicia proceso");
+//        }
         protected Long doInBackground(String... params){
             //params[0] -> url
             //params[1] -> filename
+            System.setProperty("http.keepAlive", "false");
+            URL url = null;
             try{
-                URL url = new URL(params[0]);
-                long startTime = System.currentTimeMillis();
-
-                //Open a connection to that URL.
-                URLConnection ucon = url.openConnection();
-
-                ucon.setReadTimeout(TIMEOUT_CONNECTION);
-                ucon.setConnectTimeout(TIMEOUT_SOCKET);
-
-
-                //Define InputStreams to read from the URLConnection.
-                // uses 3KB download buffer
-                InputStream is = ucon.getInputStream();
-                BufferedInputStream inStream = new BufferedInputStream(is, 1024 * 5);
-                FileOutputStream outStream = new FileOutputStream(params[1]);
-                byte[] buff = new byte[5 * 1024];
-
-                //Read bytes (and store them) until there is nothing more to read(-1)
-                int len;
-                int total = ucon.getContentLength();
-                int progreso=0;
-                while ((len = inStream.read(buff)) != -1)
-                {
-                    outStream.write(buff,0,len);
-                    int d = (int)outStream.getChannel().size();
-                    progreso = (d*100)/total;
-                    publishProgress(progreso);
-                    Log.e("PROGRESO: ",""+progreso);
-
-                }
-
-                //clean up
-                outStream.flush();
-                outStream.close();
-                inStream.close();
-
+                url = new URL(params[0]);
+                ulrConnect(url, params[1]);
 
             }catch (IOException e){
+                if(!flagFirstConnect){
+                    flagFirstConnect = true;
+                    try{
+                        ulrConnect(url, params[1]);
+                    }catch (IOException z){
+                        z.printStackTrace();
+                    }
+                }
                 e.printStackTrace();
             }
             return null;
         }
 
 
-        protected void onPreExecute(){
-            img.setVisibility(View.GONE);
-            pg.setVisibility(View.VISIBLE);
-            child.setClickable(false);
-            pg.setProgress(0);
-        }
+
         protected void onProgressUpdate(Integer... progress) {
+            Log.e("PROGRESO: ","****: "+progress[0]);
             pg.setProgress(progress[0]);
         }
 
@@ -318,7 +360,34 @@ public class Videos2 extends Fragment {
             img.setVisibility(View.VISIBLE);
             img.setImageResource(R.drawable.ic_play);
             pg.setVisibility(View.GONE);
+            descargas.remove(this);
+            Log.e("Post","Termina proceso");
+            videoClick.setGuardando(true);
 
         }
+        protected void onCancelled(String path) {
+            try {
+                // delete the original file
+                File fdelete = new File(path);
+                if (fdelete.exists()) {
+                    if (fdelete.delete()) {
+                        Log.e("Borrar: ","file Deleted :" + path);
+                    } else {
+                        Log.e("Borrar: ","file not Deleted :" + path);
+                    }
+                }
+            } catch (Exception e) {
+                Log.e("tag", e.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        for (GuardarVideo evento:descargas) {
+            evento.cancel(true);
+        }
+        super.onDestroy();
+
     }
 }

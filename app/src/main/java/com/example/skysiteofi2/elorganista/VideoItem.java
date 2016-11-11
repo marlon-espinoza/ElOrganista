@@ -15,8 +15,15 @@ public class VideoItem {
     public String imagen;
     public Bitmap vista;
     public Boolean guardado;
+    public Boolean guardando=false;
 
+    public Boolean getGuardando() {
+        return guardando;
+    }
 
+    public void setGuardando(Boolean guardando) {
+        this.guardando = guardando;
+    }
 
     public VideoItem(String id, String titulo, String descripcion, String url, Bitmap vista) {
         this.id = id;

@@ -28,4 +28,5 @@
     <string name="desc_list_item_icon">Item Icon</string>
     <string name="title_activity_nivel">Nivel</string>
     <string name="atras">Atrás</string>
+    <string name="title_activity_splash_screen">SplashScreen</string>
 </resources>
