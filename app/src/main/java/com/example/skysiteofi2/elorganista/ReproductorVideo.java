@@ -37,6 +37,7 @@ public class ReproductorVideo extends AppCompatActivity {
         String tituloVideo = getIntent().getStringExtra("titulo");
         String descripcionVideo = getIntent().getStringExtra("descripcion");
         String urlVideo = getIntent().getStringExtra("url");
+        String path = getIntent().getStringExtra("path");
         Log.e("url video",urlVideo);
         Log.e("titulo",tituloVideo);
         Log.e("descripcion",descripcionVideo);
@@ -46,7 +47,8 @@ public class ReproductorVideo extends AppCompatActivity {
 
 
         Uri videoUri = Uri.parse(urlVideo);
-        reproductor.setVideoURI(videoUri);
+//        reproductor.setVideoURI(videoUri);
+        reproductor.setVideoPath(path);
         reproductor.setOnErrorListener(mOnErrorListener);
         //Para reproducir archivos almacenados en la memoria SDCard:
 //        reproductor.setVideoPath("/mnt/sdcard/videoEjemplo.mp4");

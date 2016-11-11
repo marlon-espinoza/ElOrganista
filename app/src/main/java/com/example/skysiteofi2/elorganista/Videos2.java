@@ -2,41 +2,40 @@ package com.example.skysiteofi2.elorganista;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import android.app.Activity;
-import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ExpandableListView.OnGroupCollapseListener;
 import android.widget.ExpandableListView.OnGroupExpandListener;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -119,9 +118,6 @@ public class Videos2 extends Fragment {
                 @Override
                 public boolean onGroupClick(ExpandableListView parent, View v,
                                             int groupPosition, long id) {
-                    // Toast.makeText(getApplicationContext(),
-                    // "Group Clicked " + listDataHeader.get(groupPosition),
-                    // Toast.LENGTH_SHORT).show();
                     return false;
                 }
             });
@@ -150,21 +146,10 @@ public class Videos2 extends Fragment {
                     // TODO Auto-generated method stub
                     //listDataHeader.get(groupPosition)
 
-//                    try
-//                    {
-//                        OutputStreamWriter fout=
-//                                new OutputStreamWriter(
-//                                        openFileOutput("prueba_int.txt", Context.MODE_PRIVATE));
-//
-//                        fout.write("Texto de prueba.");
-//                        fout.close();
-//                    }
-//                    catch (Exception ex)
-//                    {
-//                        Log.e("Ficheros", "Error al escribir fichero a memoria interna");
-//                    }
-
                     VideoItem videoClick = (VideoItem) listDataChild.get(listDataHeader.get(groupPosition)).getItem(childPosition);
+                    ImageView imgAccion = (ImageView) listDataChild.get(listDataHeader.get(groupPosition)).getView(childPosition,v,parent).findViewById(R.id.ic_accion);
+                    ProgressBar progressBar = (ProgressBar) listDataChild.get(listDataHeader.get(groupPosition)).getView(childPosition,v,parent).findViewById(R.id.progress_accion);
+                    View child = listDataChild.get(listDataHeader.get(groupPosition)).getView(childPosition,v,parent);
 //
 //                    Intent intent = new Intent(context,ReproductorVideo.class);
 //                    intent.putExtra("titulo",videoClick.getTitulo());
@@ -172,20 +157,27 @@ public class Videos2 extends Fragment {
 //                    intent.putExtra("url",videoClick.getUrl());
 //                    //intent.putExtra("imagen",videoClick.getVista());
 //                    startActivity(intent);
-                    if (videoClick.getGuardado())
+                    if (videoClick.getGuardado()){
                         Toast.makeText(context,videoClick.getId(),Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(context,ReproductorVideo.class);
+                        intent.putExtra("titulo",videoClick.getTitulo());
+                        intent.putExtra("descripcion",videoClick.getDescripcion());
+                        intent.putExtra("url",videoClick.getUrl());
+                        String path=context.getFilesDir().getAbsolutePath()+"/"+videoClick.getId()+".mp4";
+                        intent.putExtra("path",path);
+                        //intent.putExtra("imagen",videoClick.getVista());
+                        startActivity(intent);
+                    }
                     else{
 
                         String string = "Hello world!";
                         FileOutputStream outputStream;
+                        String path=context.getFilesDir().getAbsolutePath()+"/"+videoClick.getId()+".mp4";
 
-                        try {
-//                            outputStream = (id, Context.MODE_PRIVATE);
-//                            outputStream.write(string.getBytes());
-//                            outputStream.close();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+
+
+                        new GuardarVideo(imgAccion,progressBar,child).execute(videoClick.getUrl(),path);
+
                     }
 
 
@@ -248,4 +240,85 @@ public class Videos2 extends Fragment {
         }.execute("cancionesapi/");
     }
 
+
+    private class GuardarVideo extends AsyncTask<String, Integer, Long> {
+        final int TIMEOUT_CONNECTION = 5000;//5sec
+        final int TIMEOUT_SOCKET = 30000;//30sec
+        ImageView img = null;
+        ProgressBar pg = null;
+        View child = null;
+
+
+        public GuardarVideo(ImageView img,ProgressBar pg,View child) {
+            this.img = img;
+            this.pg = pg;
+            this.child = child;
+
+        }
+
+        protected Long doInBackground(String... params){
+            //params[0] -> url
+            //params[1] -> filename
+            try{
+                URL url = new URL(params[0]);
+                long startTime = System.currentTimeMillis();
+
+                //Open a connection to that URL.
+                URLConnection ucon = url.openConnection();
+
+                ucon.setReadTimeout(TIMEOUT_CONNECTION);
+                ucon.setConnectTimeout(TIMEOUT_SOCKET);
+
+
+                //Define InputStreams to read from the URLConnection.
+                // uses 3KB download buffer
+                InputStream is = ucon.getInputStream();
+                BufferedInputStream inStream = new BufferedInputStream(is, 1024 * 5);
+                FileOutputStream outStream = new FileOutputStream(params[1]);
+                byte[] buff = new byte[5 * 1024];
+
+                //Read bytes (and store them) until there is nothing more to read(-1)
+                int len;
+                int total = ucon.getContentLength();
+                int progreso=0;
+                while ((len = inStream.read(buff)) != -1)
+                {
+                    outStream.write(buff,0,len);
+                    int d = (int)outStream.getChannel().size();
+                    progreso = (d*100)/total;
+                    publishProgress(progreso);
+                    Log.e("PROGRESO: ",""+progreso);
+
+                }
+
+                //clean up
+                outStream.flush();
+                outStream.close();
+                inStream.close();
+
+
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+
+        protected void onPreExecute(){
+            img.setVisibility(View.GONE);
+            pg.setVisibility(View.VISIBLE);
+            child.setClickable(false);
+            pg.setProgress(0);
+        }
+        protected void onProgressUpdate(Integer... progress) {
+            pg.setProgress(progress[0]);
+        }
+
+        protected void onPostExecute(Long result) {
+            img.setVisibility(View.VISIBLE);
+            img.setImageResource(R.drawable.ic_play);
+            pg.setVisibility(View.GONE);
+
+        }
+    }
 }

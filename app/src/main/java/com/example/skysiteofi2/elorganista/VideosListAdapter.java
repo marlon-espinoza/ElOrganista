@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -59,23 +60,8 @@ public class VideosListAdapter extends BaseAdapter {
         imgIcon.setImageBitmap(videos.get(position).getVista());
         txtTitle.setText(videos.get(position).getTitulo());
         txtCount.setText(videos.get(position).getDescripcion());
-        if(buscarVideoAlmacenado(videos.get(position).getId())){
-            videos.get(position).setGuardado(true);
-            imgAccion.setImageResource(R.drawable.ic_play);
-        }
-
-        else{
-            videos.get(position).setGuardado(false);
-            imgAccion.setImageResource(R.drawable.ic_down);
-        }
-
 
         return view;
     }
-    private boolean buscarVideoAlmacenado(String id){
-        ContextWrapper cw = new ContextWrapper(this.context);
-        File file = cw.getDir(id+".mp4", Context.MODE_PRIVATE);
 
-        return file.exists();
-    }
 }
