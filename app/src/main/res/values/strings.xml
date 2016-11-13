@@ -10,9 +10,9 @@
 
     <!-- Nombres de los items -->
     <string-array name="nav_drawer_items">
-        <item>Órgano</item>
-        <item>Guitarra</item>
-        <item>Flauta</item>
+        <item>Curso de Órgano</item>
+        <!--<item>Guitarra</item>-->
+        <!--<item>Flauta</item>-->
         <item>Inicio</item>
     </string-array>
 

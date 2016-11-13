@@ -62,13 +62,13 @@ public class MainActivity extends AppCompatActivity {
         // agregar un nuevo item al menu deslizante
         // Seccion1
         navMenuIcons.getResourceId(navMenuIcons.getIndex(1),-1);
-        navDrawerItems.add(new NavDrawerItem(navMenuTitles[0], R.drawable.ic_people));
+        navDrawerItems.add(new NavDrawerItem(navMenuTitles[0], R.drawable.ic_piano));
         // Seccion2
 //        navDrawerItems.add(new NavDrawerItem(navMenuTitles[1], R.drawable.ic_whats_hot));
 //        // Seccion3
 //        navDrawerItems.add(new NavDrawerItem(navMenuTitles[2], R.drawable.ic_communities));
         // Seccion4
-        navDrawerItems.add(new NavDrawerItem(navMenuTitles[3], R.drawable.ic_photos));
+        navDrawerItems.add(new NavDrawerItem(navMenuTitles[1], R.drawable.ic_home));
 
         // Recycle the typed array
         navMenuIcons.recycle();
