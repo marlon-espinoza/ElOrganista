@@ -2,13 +2,18 @@ package com.example.skysiteofi2.elorganista;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -48,6 +53,7 @@ public class VideosListAdapter extends BaseAdapter {
             view = mInflater.inflate(R.layout.video_list_item, null);
         }
         ImageView imgIcon = (ImageView) view.findViewById(R.id.zoom_video);
+        ImageView imgAccion = (ImageView) view.findViewById(R.id.ic_accion);
         TextView txtTitle = (TextView) view.findViewById(R.id.titulo_video);
         TextView txtCount = (TextView) view.findViewById(R.id.descripcion_video);
 
@@ -57,4 +63,5 @@ public class VideosListAdapter extends BaseAdapter {
 
         return view;
     }
+
 }

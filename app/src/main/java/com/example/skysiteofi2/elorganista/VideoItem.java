@@ -8,13 +8,33 @@ import android.media.Image;
  */
 
 public class VideoItem {
+    public String id;
     public String titulo;
     public String descripcion;
     public String url;
     public String imagen;
-
-
     public Bitmap vista;
+    public Boolean guardado;
+    public Boolean guardando=false;
+
+    public Boolean getGuardando() {
+        return guardando;
+    }
+
+    public void setGuardando(Boolean guardando) {
+        this.guardando = guardando;
+    }
+
+    public VideoItem(String id, String titulo, String descripcion, String url, Bitmap vista) {
+        this.id = id;
+        this.titulo = titulo;
+        this.descripcion = descripcion;
+        this.url = url;
+        this.imagen = imagen;
+        this.vista = vista;
+    }
+
+
 
     public VideoItem(String titulo, String descripcion, String url, Bitmap vista) {
         this.titulo = titulo;
@@ -52,5 +72,17 @@ public class VideoItem {
 
     public void setVista(Bitmap vista) {
         this.vista = vista;
+    }
+
+    public String getId() {  return id;   }
+
+    public void setId(String id) {   this.id = id;   }
+
+    public Boolean getGuardado() {
+        return guardado;
+    }
+
+    public void setGuardado(Boolean guardado) {
+        this.guardado = guardado;
     }
 }

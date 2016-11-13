@@ -4,6 +4,7 @@ package com.example.skysiteofi2.elorganista;
  * Created by skysiteofi2 on 1/11/16.
  */
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
@@ -61,6 +62,18 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         ImageView img = (ImageView)convertView
                 .findViewById(R.id.zoom_video);
         img.setImageBitmap(child.getVista());
+
+        ImageView imgAccion = (ImageView) convertView.findViewById(R.id.ic_accion);
+
+        if(buscarVideoAlmacenado(child.getId())){
+            child.setGuardado(true);
+            imgAccion.setImageResource(R.drawable.ic_play);
+        }
+
+        else{
+            child.setGuardado(false);
+            imgAccion.setImageResource(R.drawable.ic_down);
+        }
         return convertView;
     }
 
@@ -111,5 +124,12 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         return true;
+    }
+
+    private boolean buscarVideoAlmacenado(String id){
+        String path=_context.getFilesDir().getAbsolutePath()+"/"+id+".mp4";
+        File file = new File ( path );
+
+        return file.exists();
     }
 }
