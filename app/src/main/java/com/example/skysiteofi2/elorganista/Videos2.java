@@ -65,10 +65,13 @@ public class Videos2 extends Fragment {
         context = getActivity();
         rootView = inflater.inflate(R.layout.activity_videos2, container, false);
         context = getActivity();
+        ((MainActivity) getActivity()).setTitle("Curso de Órgano | Canciones");
         progressBar = (ProgressBar)rootView.findViewById(R.id.progressBar4);
         setHasOptionsMenu(true);
         String idSubnivel=getArguments().getString("idsubnivel");
         String labelSubnivel=getArguments().getString("subnivel");
+
+
 
 
         // get the listview
@@ -105,7 +108,7 @@ public class Videos2 extends Fragment {
                 ArrayList<VideoItem> videoItems = new ArrayList<VideoItem>();
                 for (int z=0;z<videos.length();z++){
                     JSONObject tempVideo = (JSONObject)videos.get(z);
-                    Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_whats_hot);
+                    Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_piano);
                     videoItems.add(new VideoItem(tempVideo.getString("id"),tempVideo.getString("titulo"),tempVideo.getString("descripcion"),tempVideo.getString("videoUrl"),bitmap));
                 }
                 VideosListAdapter videosAdapterTemp;

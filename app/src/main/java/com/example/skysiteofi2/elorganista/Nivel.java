@@ -59,6 +59,9 @@ public class Nivel extends Fragment {
         setHasOptionsMenu(true);
         context = getActivity();
         rootView = inflater.inflate(R.layout.fragment_subnivel, container, false);
+
+        ((MainActivity) getActivity()).setTitle("Curso de Órgano | Partes");
+
         lView = (ListView) rootView.findViewById(R.id.subniveles);
         progressBar = (ProgressBar)rootView.findViewById(R.id.progressBar3);
         String idnivel=getArguments().getString("idnivel");
@@ -88,7 +91,7 @@ public class Nivel extends Fragment {
                 arregloIds.add(idnivel);
                 arregloString.add(subnivel);
             }
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1, arregloString);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),R.layout.list_simple_item, arregloString);
             lView.setAdapter(adapter);
             lView.setOnItemClickListener(new AdapterView.OnItemClickListener()
             {
