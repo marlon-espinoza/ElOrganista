@@ -112,7 +112,6 @@ public class Seccion extends Fragment {
                 // Get the layout inflater
                 LayoutInflater inflater2 = getActivity().getLayoutInflater();
                 builder.setView(inflater2.inflate(R.layout.dialog_cargando, null));
-
                 builder.setTitle("Cargando...");
                 builder.setCancelable(false);
                 dialogCargar = builder.create();
