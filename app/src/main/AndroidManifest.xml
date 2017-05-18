@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.skysiteofi2.elorganista">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -9,7 +10,13 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:name="com.orm.SugarApp"
+        tools:replace="android:icon,android:theme">
+        <meta-data android:name="DATABASE" android:value="el_organista.db" />
+        <meta-data android:name="VERSION" android:value="5" />
+        <meta-data android:name="QUERY_LOG" android:value="true" />
+        <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="com.example.skysiteofi2.elorganista" />
         <activity
             android:name=".SplashScreen"
             android:label="@string/app_name"

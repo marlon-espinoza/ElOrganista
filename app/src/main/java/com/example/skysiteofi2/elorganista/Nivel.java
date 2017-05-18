@@ -27,11 +27,15 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.skysiteofi2.elorganista.DB.NivelDB;
+import com.example.skysiteofi2.elorganista.DB.SubNivelDB;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class Nivel extends Fragment {
@@ -39,7 +43,7 @@ public class Nivel extends Fragment {
     private ListView lView;
     private ArrayList<String> arregloIds = new ArrayList<String>();
     private ProgressBar progressBar=null;
-
+    NivelDB nivelDB;
     public Nivel() {
         super();
     }
@@ -64,11 +68,49 @@ public class Nivel extends Fragment {
 
         lView = (ListView) rootView.findViewById(R.id.subniveles);
         progressBar = (ProgressBar)rootView.findViewById(R.id.progressBar3);
+
         String idnivel=getArguments().getString("idnivel");
+        System.out.println(idnivel);
         String labelnivel=getArguments().getString("nivel");
+        System.out.println("Niveles: "+NivelDB.find(NivelDB.class,"id_nivel = ?",idnivel).size());
+        this.nivelDB = NivelDB.find(NivelDB.class,"id_nivel = ?",idnivel).get(0);
+        System.out.println(nivelDB.getIdNivel());
 
         try {
-            getSubNiveles(idnivel);
+//            Consulta si los subniveles existen en la base de datos
+            List<SubNivelDB> subniveles = SubNivelDB.find(SubNivelDB.class,"nivel = ?",nivelDB.getId().toString());
+            System.out.println("Subnieveles: "+subniveles.size());
+            Log.d(Nivel.class.getSimpleName(),""+subniveles.size());
+            if (subniveles.size()==0)
+                getSubNiveles(idnivel);
+            else{
+                ArrayList<String> arregloString = new ArrayList<String>();
+                for (SubNivelDB subnivel: subniveles) {
+                    String subnivel_titulo =  subnivel.getTitulo();
+                    String subnivel_id =  subnivel.getIdSubnivel();
+
+                    arregloIds.add(subnivel_id);
+                    arregloString.add(subnivel_titulo);
+                }
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),R.layout.list_simple_item, arregloString);
+                lView.setAdapter(adapter);
+                lView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+                {
+                    public void onItemClick(AdapterView<?> arg0, View arg1,int posicion, long arg3)
+                    {
+                        String str = ((TextView) arg1).getText().toString();
+                        Videos2 nextFrag= new Videos2();
+                        Bundle bdl = new Bundle();
+                        bdl.putString("subnivel", str);
+                        bdl.putString("idsubnivel", arregloIds.get(posicion));
+                        nextFrag.setArguments(bdl);
+                        getFragmentManager().beginTransaction()
+                                .replace(R.id.frame_container, nextFrag,"Subnivel")
+                                .addToBackStack(null)
+                                .commit();
+                    }
+                });
+            }
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -86,10 +128,14 @@ public class Nivel extends Fragment {
             ArrayList<String> arregloString = new ArrayList<String>();
             for (int i = 0; i < jObject.length(); i++) {
                 JSONObject temp = (JSONObject)jObject.get(i);
+                System.out.println(temp);
                 String subnivel =  temp.getString("subnivel");
-                String idnivel =  temp.getString("id");
-                arregloIds.add(idnivel);
+                String idsubnivel =  temp.getString("id");
+                arregloIds.add(idsubnivel);
                 arregloString.add(subnivel);
+                System.out.println(idsubnivel);
+                SubNivelDB subniveldb = new SubNivelDB(subnivel, this.nivelDB,idsubnivel);
+                subniveldb.save();
             }
             ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),R.layout.list_simple_item, arregloString);
             lView.setAdapter(adapter);

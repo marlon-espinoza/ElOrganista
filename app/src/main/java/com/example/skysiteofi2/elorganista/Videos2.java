@@ -41,6 +41,10 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.example.skysiteofi2.elorganista.DB.CancionDB;
+import com.example.skysiteofi2.elorganista.DB.SubNivelDB;
+import com.example.skysiteofi2.elorganista.DB.VideoDB;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -54,6 +58,8 @@ public class Videos2 extends Fragment {
     private ProgressBar progressBar=null;
     private Context context;
     private static ArrayList<GuardarVideo> descargas=new ArrayList<>();
+    SubNivelDB subNivelDB;
+    List<CancionDB> canciones;
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
@@ -79,7 +85,15 @@ public class Videos2 extends Fragment {
 
         // preparing list data
         try {
-            getCanciones(idSubnivel);
+//            Validar si existe en la base
+            this.subNivelDB = SubNivelDB.find(SubNivelDB.class,"id_subnivel = ?",idSubnivel).get(0);
+            this.canciones = CancionDB.find(CancionDB.class,"subnivel = ?",subNivelDB.getId().toString());
+
+            if(canciones.size()==0)
+                getCanciones(idSubnivel);
+            else{
+                completeTask(true,"");
+            }
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -90,31 +104,58 @@ public class Videos2 extends Fragment {
 
         return rootView;
     }
+    public void leerCanciones(Boolean local,String result) throws JSONException {
 
-    public void completeTask(String result) {
-        try {
-            JSONArray jObject = new JSONArray(result);
-            ArrayList<String> cancionesArray = new ArrayList<String>();
+        listDataHeader = new ArrayList<String>();
+        listDataChild = new HashMap<String, VideosListAdapter>();
 
-            listDataHeader = new ArrayList<String>();
-            listDataChild = new HashMap<String, VideosListAdapter>();
+        if(local){
+            for (CancionDB cancion:this.canciones) {
 
-            for (int i = 0; i < jObject.length(); i++) {
-                JSONObject temp = (JSONObject)jObject.get(i);
                 // Adding child data
-                listDataHeader.add(temp.getString("cancion"));
-                JSONArray  videos = temp.getJSONArray("videos");
+                listDataHeader.add(cancion.getTitulo());
+                List<VideoDB> videos = VideoDB.find(VideoDB.class,"cancion = ?",cancion.getId().toString());
+
 
                 ArrayList<VideoItem> videoItems = new ArrayList<VideoItem>();
-                for (int z=0;z<videos.length();z++){
-                    JSONObject tempVideo = (JSONObject)videos.get(z);
+                for (VideoDB video:videos) {
                     Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_piano);
-                    videoItems.add(new VideoItem(tempVideo.getString("id"),tempVideo.getString("titulo"),tempVideo.getString("descripcion"),tempVideo.getString("videoUrl"),bitmap));
+                    videoItems.add(new VideoItem(video.getIdVideo(), video.getTitulo(), video.getDescripcion(), video.getUrl(), bitmap));
                 }
                 VideosListAdapter videosAdapterTemp;
-                videosAdapterTemp = new VideosListAdapter(context,videoItems);
+                videosAdapterTemp = new VideosListAdapter(context, videoItems);
+                listDataChild.put(cancion.getTitulo(), videosAdapterTemp); // Header, Child data
+            }
+        }else{
+
+            JSONArray jObject = new JSONArray(result);
+            Log.d(Videos2.class.getSimpleName(), jObject.toString());
+
+            for (int i = 0; i < jObject.length(); i++) {
+                JSONObject temp = (JSONObject) jObject.get(i);
+                // Adding child data
+                listDataHeader.add(temp.getString("cancion"));
+                JSONArray videos = temp.getJSONArray("videos");
+                CancionDB cancionDB = new CancionDB(temp.getString("cancion"),temp.getString("id"),subNivelDB);
+                cancionDB.save();
+                ArrayList<VideoItem> videoItems = new ArrayList<VideoItem>();
+                for (int z = 0; z < videos.length(); z++) {
+                    JSONObject tempVideo = (JSONObject) videos.get(z);
+                    Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_piano);
+                    videoItems.add(new VideoItem(tempVideo.getString("id"), tempVideo.getString("titulo"), tempVideo.getString("descripcion"), tempVideo.getString("videoUrl"), bitmap));
+                    VideoDB videoDB = new VideoDB(tempVideo.getString("id"), tempVideo.getString("titulo"), tempVideo.getString("descripcion"), tempVideo.getString("videoUrl"),cancionDB);
+                    videoDB.save();
+                }
+                VideosListAdapter videosAdapterTemp;
+                videosAdapterTemp = new VideosListAdapter(context, videoItems);
                 listDataChild.put(listDataHeader.get(i), videosAdapterTemp); // Header, Child data
             }
+        }
+    }
+    public void completeTask(Boolean local,String result) {
+        try {
+
+            leerCanciones(local,result);
 
             listAdapter = new ExpandableListAdapter(context, listDataHeader, listDataChild);
             // setting list adapter
@@ -230,7 +271,7 @@ public class Videos2 extends Fragment {
                 super.onPostExecute(result);
                 progressBar.setVisibility(View.GONE);
                 if (!result.equals("Error"))
-                    completeTask(result);
+                    completeTask(false,result);
                 else{
                     AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
                     builder1.setMessage("Error de conección");

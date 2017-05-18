@@ -13,7 +13,7 @@
     <ImageView
         android:layout_width="406dp"
         android:layout_height="112dp"
-        app:srcCompat="@drawable/organistalogo_l"
+        app:srcCompat="@drawable/organista_logo_l"
         android:id="@+id/imageView"
         android:layout_marginLeft="25dp"
         android:layout_marginTop="25dp" />

@@ -22,12 +22,15 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.skysiteofi2.elorganista.DB.NivelDB;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
@@ -68,8 +71,11 @@ public class Seccion extends Fragment {
                 JSONObject temp = (JSONObject)jObject.get(i);
                 String nivel =  temp.getString("nivel");
                 String idnivel =  temp.getString("id");
+                NivelDB niveldb = new NivelDB(idnivel, nivel);
+                niveldb.save();
                 arregloIds.add(idnivel);
                 arregloString.add(nivel);
+
             }
             ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),R.layout.list_simple_item, arregloString);
             lView.setAdapter(adapter);
@@ -167,7 +173,43 @@ public class Seccion extends Fragment {
 
 
             try {
-                getNiveles();
+                List<NivelDB> niveles = NivelDB.listAll(NivelDB.class);
+                System.out.println(niveles.size());
+                if(niveles.size()==0)
+                    getNiveles();
+                else{
+                    System.out.println("prueba");
+                    ArrayList<String> arregloString = new ArrayList<String>();
+                    for (NivelDB niveldb:niveles) {
+                        String nivel =  niveldb.getTitulo();
+                        String idnivel =  niveldb.getIdNivel();
+                        arregloIds.add(idnivel);
+                        arregloString.add(nivel);
+                    }
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),R.layout.list_simple_item, arregloString);
+                    lView.setAdapter(adapter);
+                    lView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+                    {
+                        public void onItemClick(AdapterView<?> arg0, View arg1,int posicion, long arg3)
+                        {
+//                    String str = ((TextView) arg1).getText().toString();
+//                    Intent intent = new Intent(context,Nivel.class);
+//                    intent.putExtra("nivel", str);
+//                    intent.putExtra("idnivel",arregloIds.get(posicion));
+//                    startActivity(intent);
+                            String str = ((TextView) arg1).getText().toString();
+                            Nivel nextFrag= new Nivel().newInstance(str);
+                            Bundle bdl = new Bundle();
+                            bdl.putString("nivel", str);
+                            bdl.putString("idnivel", arregloIds.get(posicion));
+                            nextFrag.setArguments(bdl);
+                            getFragmentManager().beginTransaction()
+                                    .replace(R.id.frame_container, nextFrag,"Nivel")
+                                    .addToBackStack(null)
+                                    .commit();
+                        }
+                    });
+                }
             } catch (ExecutionException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {
